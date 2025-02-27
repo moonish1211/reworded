@@ -9,6 +9,49 @@ from scipy import signal
 import random, os, pickle
 import mne
 
+# -----------------------
+# 0. Data Aquizition 
+# -----------------------
+
+'''
+collecting 500 words to be tested on and the ration of correct vs incorect will be a parameter
+'''
+correct_word_num = 250
+incorrect_advanced_num = 150
+incorrect_trick_num = 100
+
+##Randomly get subset of these words from the txt file. 
+def select_random_words(file_path, num_words=250):
+    with open(file_path, 'r') as file:
+        words = [line.strip() for line in file if line.strip()]
+    
+    if len(words) < num_words:
+        raise ValueError("The file contains fewer words than requested.")
+    
+    random_words = random.sample(words, num_words)
+    
+    return random_words
+
+correct_word_path = "correct.txt" 
+correct_words = select_random_words(correct_word_path, num_words = correct_word_num)
+correct_words = [(word, 1) for word in correct_words]
+
+incorrect_advanced_path = "incorrect_advance.txt"  
+incorrect_advanced_words = select_random_words(incorrect_advanced_path, num_words = incorrect_advanced_num)
+incorrect_advanced_words = [(word, 0) for word in incorrect_advanced_words]
+
+incorrect_trick_path = "incorrect_trick.txt"  
+incorrect_trick_words = select_random_words(incorrect_trick_path, num_words = incorrect_trick_num)
+incorrect_trick_words = [(word, 0) for word in incorrect_trick_words]
+
+# Combine all lists into one
+combined_list = correct_words + incorrect_advanced_words + incorrect_trick_words
+
+# Shuffle the combined list
+random.shuffle(combined_list)
+
+
+
 # -------------------------------
 # 1. Experiment Setup and Configuration
 # -------------------------------
@@ -25,6 +68,8 @@ subject = 1
 session = 1
 calibration_mode = True   # Enable calibration mode so the display trial loop runs
 
+
+#### FIX
 # Directory and file paths (not used when cyton_in is False)
 save_dir = f'data/cyton8_{stim_type}-vep_32-class_{stim_duration}s/sub-{subject:02d}/ses-{session:02d}/'
 run = 1
