@@ -89,10 +89,28 @@ prompt_break = visual.TextStim(
     height=0.07
 )
 
+# Create a flash marker stimulus at the bottom left.
+# This marker will be drawn (flashed) to indicate event timing.
+flash_marker = visual.Rect(
+    win,
+    width=0.05,   # Adjust size as needed
+    height=0.05,
+    pos=(-0.95, -0.95),  # Bottom left in normalized coordinates
+    fillColor="white",
+    lineColor="white"
+)
+
+
 label_list = []
 user_response_list = []
 word_shown = 0
 for word, label in combined_list:
+
+    # Initialize flags to ensure the flash is drawn only once at each desired time
+    flash_shown_first = False
+    flash_shown_last = False
+
+
     label_list.append(label)
     # Display each character in the word sequentially
     for i, letter in enumerate(word):
@@ -109,6 +127,21 @@ for word, label in combined_list:
             
             square_frame.draw()
             text_stim.draw()
+
+
+            # --- Time Locking via Flash Marker ---
+            # At the very start of the first character, flash the marker.
+            if i == 0 and not flash_shown_first and clock.getTime() < 0.02:
+                flash_marker.draw()
+                flash_shown_first = True
+            # At the very end of the last character display, flash the marker.
+            if i == len(word) - 1 and not flash_shown_last and clock.getTime() > duration - 0.02:
+                flash_marker.draw()
+                flash_shown_last = True
+            # -------------------------------------
+
+
+
             win.flip()
             
             # Allow escape key to exit immediately
