@@ -76,7 +76,14 @@ text_stim = visual.TextStim(
 # Prepare a prompt screen stimulus (to be shown after all letters)
 prompt_text = visual.TextStim(
     win,
-    text="Press RIGHT arrow if you identified the vocabulary\nPress LEFT arrow if not",
+    text="Click any key if you recognized this as vocabulary!!",
+    pos=(0, 0),
+    color="white",
+    height=0.07
+)
+prompt_break = visual.TextStim(
+    win,
+    text="Break time!! Press space to resume the experiment",
     pos=(0, 0),
     color="white",
     height=0.07
@@ -84,6 +91,7 @@ prompt_text = visual.TextStim(
 
 label_list = []
 user_response_list = []
+word_shown = 0
 for word, label in combined_list:
     label_list.append(label)
     # Display each character in the word sequentially
@@ -108,22 +116,38 @@ for word, label in combined_list:
                 win.close()
                 core.quit()
 
-    # After all characters are displayed, show the prompt and wait for user response
-    prompt_text.draw()
-    win.flip()
-    keys = event.waitKeys(keyList=['left', 'right', 'escape'])
-    if keys:
+    # After displaying the word, show the prompt screen for 1.3 seconds
+    user_response = None
+    key_pressed = False
+    clock = core.Clock()
+    while clock.getTime() < 1.3:
+        prompt_text.draw()
+        win.flip()
+        keys = event.getKeys()  # Check for any key press
+        if keys and user_response is None:
+            user_response = keys[0]  # Record the first key press
+            key_pressed = True
         if 'escape' in keys:
             win.close()
             core.quit()
-        user_response = keys[0]
-        print("User response:", user_response)
-        if user_response == "right":
-            user_response_list.append(1)
-        elif user_response == "left":
-            user_response_list.append(0)
+    if key_pressed:
+        user_response_list.append(1)
+    else:
+        user_response_list.append(0)
     print(label, user_response_list[-1])
+    word_shown += 1
 
+    if word_shown % 25 == 0:
+        ##For every 25 word, we would like to give break to the user that pauses the loop until key is pressed. 
+        while True:
+            prompt_break.draw()
+            win.flip()
+            keys = event.getKeys()  # Check for key presses
+            if 'space' in keys:  # If spacebar is pressed
+                print("Spacebar pressed! Exiting loop...")
+                break
+            core.wait(0.1)  # Small delay to prevent high CPU usage
+            ### This may be a bad lag for implementation...
 
 
 # Clean up: close the window and quit
