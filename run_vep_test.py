@@ -92,10 +92,11 @@ from psychopy import core
 # -------------------------------
 
 
-win = psychopy.visual.Window(
-        size=(800, 800),
-        units="norm",
-        fullscr=False)
+# win = psychopy.visual.Window(
+#         size=(800, 800),
+#         units="norm",
+#         fullscr=False)
+win = visual.Window(fullscr=True, color="black", units="norm")
 
 # Define the word and flicker/display parameters
 # word = "table"
@@ -144,8 +145,8 @@ prompt_break = visual.TextStim(
 # This marker will be drawn (flashed) to indicate event timing.
 flash_marker = visual.Rect(
     win,
-    width=0.05,   # Adjust size as needed
-    height=0.05,
+    width=0.1,   # Adjust size as needed
+    height=0.1,
     pos=(-0.95, -0.95),  # Bottom left in normalized coordinates
     fillColor="white",
     lineColor="white"
@@ -170,11 +171,12 @@ for word, label in combined_list:
         clock = core.Clock()
         while clock.getTime() < duration:
             t = clock.getTime()
+            text_stim.text = letter
             # Flicker logic: show the letter when the sine wave is positive, otherwise blank
-            if np.sin(2 * np.pi * flicker_freq * t) > 0:
-                text_stim.text = letter
-            else:
-                text_stim.text = ""
+            # if np.sin(2 * np.pi * flicker_freq * t) > 0:
+            #     text_stim.text = letter
+            # else:
+            #     text_stim.text = ""
             
             square_frame.draw()
             text_stim.draw()
@@ -182,14 +184,14 @@ for word, label in combined_list:
 
             # --- Time Locking via Flash Marker ---
             # At the very start of the first character, flash the marker.
-            if i == 0 and not flash_shown_first and clock.getTime() < 0.02:
+            if clock.getTime() < 0.02:
                 flash_marker.draw()
                 flash_shown_first = True
-            # At the very end of the last character display, flash the marker.
-            if i == len(word) - 1 and not flash_shown_last and clock.getTime() > duration - 0.02:
-                flash_marker.draw()
-                flash_shown_last = True
-            # -------------------------------------
+            # # At the very end of the last character display, flash the marker.
+            # if i == len(word) - 1 and not flash_shown_last and clock.getTime() > duration - 0.02:
+            #     flash_marker.draw()
+            #     flash_shown_last = True
+            # # -------------------------------------
 
 
 
@@ -311,9 +313,34 @@ core.quit()
 # 3. (Skipped) EEG Acquisition Setup
 # -------------------------------
 # The following block is skipped because cyton_in is False.
-if cyton_in:
-    # (Original code for connecting to the Cyton board and starting data acquisition)
-    pass
+# def write_data_file(trial_num):
+#     BoardShim.enable_dev_board_logger():
+
+#     BoardShim.log_message(LogLevels.LEVEL_INFO.value, 'start sleeping in the main thread')
+#     time.sleep(2)
+#     data = board.getboard_data()
+
+#     eeg_channels = BoardShim.get_eeg_channels(CYTON_BOARD_ID)
+#     df = pd.DataFrame(np.transpose(data))
+
+#     filename = f"trial_{trial_num}.csv"
+#     DataFilter.write_file(data, filename, 'a')
+
+
+# if cyton_in:
+#     # (Original code for connecting to the Cyton board and starting data acquisition)
+#     CYTON_BOARD_ID = 0
+#     BAUD_RATE = 115200
+
+
+# if CYTON_BOARD_ID != 6:
+#     params.serial_port = find_openbci_port()
+# elif CYTON_BOARD_ID == 6:
+#     params.ip_port = 9000
+
+# board = BoardShim(CYTON_BOARD_ID, params)
+# board.prepare_session()
+# res_
 
 # # -------------------------------
 # # 4. Stimulus Presentation and Trial Sequence Setup

@@ -1,6 +1,7 @@
 from psychopy import visual, core, event
 import numpy as np
 import random
+from brainflow import BrainFlowInputParams
 
 ##Preparing the data:
 '''
@@ -43,8 +44,12 @@ random.shuffle(combined_list)
 
 
 
+
 # Set up the window
-win = visual.Window(size=[800, 600], color="black", units="norm")
+## Code for doing it in pop up to look at terminal output
+# win = visual.Window(size=[800, 600], color="black", units="norm")
+## Code for fullscreen
+win = visual.Window(fullscr=True, color="black", units="norm")
 
 # Define the word and flicker/display parameters
 # word = "table"
@@ -93,8 +98,8 @@ prompt_break = visual.TextStim(
 # This marker will be drawn (flashed) to indicate event timing.
 flash_marker = visual.Rect(
     win,
-    width=0.05,   # Adjust size as needed
-    height=0.05,
+    width=0.1,   # Adjust size as needed
+    height=0.1,
     pos=(-0.95, -0.95),  # Bottom left in normalized coordinates
     fillColor="white",
     lineColor="white"
@@ -107,8 +112,8 @@ word_shown = 0
 for word, label in combined_list:
 
     # Initialize flags to ensure the flash is drawn only once at each desired time
-    flash_shown_first = False
-    flash_shown_last = False
+    # flash_shown_first = False
+    # flash_shown_last = False
 
 
     label_list.append(label)
@@ -120,10 +125,11 @@ for word, label in combined_list:
         while clock.getTime() < duration:
             t = clock.getTime()
             # Flicker logic: show the letter when the sine wave is positive, otherwise blank
-            if np.sin(2 * np.pi * flicker_freq * t) > 0:
-                text_stim.text = letter
-            else:
-                text_stim.text = ""
+            text_stim.text = letter
+            # if np.sin(2 * np.pi * flicker_freq * t) > 0:
+            #     text_stim.text = letter
+            # else:
+            #     text_stim.text = ""
             
             square_frame.draw()
             text_stim.draw()
@@ -131,14 +137,15 @@ for word, label in combined_list:
 
             # --- Time Locking via Flash Marker ---
             # At the very start of the first character, flash the marker.
-            if i == 0 and not flash_shown_first and clock.getTime() < 0.02:
+            # if i == 0 and not flash_shown_first and clock.getTime() < 0.02:
+            if clock.getTime() < 0.02:
                 flash_marker.draw()
                 flash_shown_first = True
             # At the very end of the last character display, flash the marker.
-            if i == len(word) - 1 and not flash_shown_last and clock.getTime() > duration - 0.02:
-                flash_marker.draw()
-                flash_shown_last = True
-            # -------------------------------------
+            # if i == len(word) - 1 and not flash_shown_last and clock.getTime() > duration - 0.02:
+            #     flash_marker.draw()
+            #     flash_shown_last = True
+            # # -------------------------------------
 
 
 
