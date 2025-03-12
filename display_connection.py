@@ -192,6 +192,15 @@ for index in range(length_data):
     while clock.getTime() < 1.3:
         prompt_text.draw()
         win.flip()
+        
+        # Collect EEG data during the prompt window
+        current_count = board.get_board_data_count()
+        all_data = board.get_board_data()  # Shape: (channels, total_samples)
+        iteration_data = all_data[:, previous_sample_count:current_count]
+        previous_sample_count = current_count
+
+
+
         keys = event.getKeys()
         if keys and user_response is None:
             user_response = keys[0]  # Record the first key press
