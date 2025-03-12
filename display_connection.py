@@ -12,6 +12,7 @@ import csv
 import os
 import json
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
+from datetime import datetime
 
 ## Preparing the data:
 '''
@@ -65,8 +66,13 @@ board.start_stream(45000)
 # Initialize previous sample count to segment data for each iteration.
 previous_sample_count = board.get_board_data_count()
 
+now = datetime.now()
+
+# Format it as YYYY-MM-DD_HH-MM-SS
+timestamp = now.strftime("%m-%d_%H-%M")
+
 # CSV filename to store EEG data.
-csv_filename = "openbci_data.csv"
+csv_filename = f"data\openbci_data_{timestamp}.csv"
 # If the file doesn't exist, write the header.
 header_written = os.path.exists(csv_filename)
 csv_file = open(csv_filename, 'a', newline='')
@@ -75,8 +81,11 @@ csv_writer = csv.writer(csv_file)
 ##############################
 # Set up display window (full screen)
 ##############################
-# win = visual.Window(fullscr=True, color="black", units="norm")
-win = visual.Window(size=[800, 600], color="black", units="norm")
+### This code below changes the screen to fullscreen
+win = visual.Window(fullscr=True, color="black", units="norm")
+
+### This code displays screen as a pop up for debugging purposes
+# win = visual.Window(size=[800, 600], color="black", units="norm")
 
 # Display parameters
 flicker_freq = 12          # Flicker frequency in Hz
@@ -124,7 +133,7 @@ flash_marker = visual.Rect(
     win,
     width=0.1,   # Adjust size as needed
     height=0.1,
-    pos=(-0.95, -0.95),  # Bottom left in normalized coordinates
+    pos=(0.95, -0.95),  # Bottom left in normalized coordinates
     fillColor="white",
     lineColor="white"
 )
