@@ -18,9 +18,9 @@ from datetime import datetime
 '''
 Collecting 450 words to be tested on and the ratio of correct vs incorrect will be a parameter.
 '''
-correct_word_num = 250
-incorrect_advanced_num = 100
-incorrect_trick_num = 100
+correct_word_num = 100
+incorrect_advanced_num = 50
+incorrect_trick_num = 50
 
 ## Randomly get subset of these words from the txt file.
 def select_random_words(file_path, num_words=250):

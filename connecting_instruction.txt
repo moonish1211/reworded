@@ -1,0 +1,3 @@
+1) Navigate to C:/Program Files/OpenBCI_GUI and connect to Cyton board
+2) Perform impedance check and once the impedance looks good, CLOSE the OpenBCI_GUI
+3) Run displays_fix_data_interval.py --> Make sure Line 90-98 is uncommented since that is code to connect to actual code

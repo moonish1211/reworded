@@ -6,6 +6,9 @@ import os
 import json
 from brainflow import BrainFlowInputParams, BoardShim, BoardIds
 from datetime import datetime
+import sys, glob, serial, time
+from serial import Serial
+
 
 ## Preparing the data:
 correct_word_num = 250
@@ -37,14 +40,60 @@ combined_list = correct_words + incorrect_advanced_words + incorrect_trick_words
 random.shuffle(combined_list)
 length_data = len(combined_list)
 
+
+def find_openbci_port():
+    """Finds the port to which the Cyton Dongle is connected to."""
+    # Find serial port names per OS
+    if sys.platform.startswith('win'):
+        ports = ['COM%s' % (i + 1) for i in range(256)]
+    elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
+        ports = glob.glob('/dev/ttyUSB*')
+    elif sys.platform.startswith('darwin'):
+        ports = glob.glob('/dev/cu.usbserial*')
+    else:
+        raise EnvironmentError('Error finding ports on your operating system')
+    openbci_port = ''
+    for port in ports:
+        try:
+            s = Serial(port=port, baudrate=BAUD_RATE, timeout=None)
+            s.write(b'v')
+            line = ''
+            time.sleep(2)
+            if s.inWaiting():
+                line = ''
+                c = ''
+                while '$$$' not in line:
+                    c = s.read().decode('utf-8', errors='replace')
+                    line += c
+                if 'OpenBCI' in line:
+                    openbci_port = port
+            s.close()
+        except (OSError, serial.SerialException):
+            pass
+    if openbci_port == '':
+        raise OSError('Cannot find OpenBCI port.')
+        exit()
+    else:
+        return openbci_port
+
+
 ##############################
 # Set up BrainFlow connection #
 ##############################
 sampling_rate = 250  # Typical for the Cyton board
 params = BrainFlowInputParams()
-params.serial_port = "COM3"  # Update as needed for your system
-board_id = 0  # Standard Cyton board ID
-board = BoardShim(BoardIds.SYNTHETIC_BOARD, params)
+# params.serial_port = "COM3"  # Update as needed for your system
+# board_id =   # Standard Cyton board ID
+# board = BoardShim(board_id, params)
+
+# # board = BoardShim(BoardIds.SYNTHETIC_BOARD, params)
+CYTON_BOARD_ID = 0
+BAUD_RATE = 115200
+if CYTON_BOARD_ID != 6:
+    params.serial_port = find_openbci_port()
+elif CYTON_BOARD_ID == 6:
+    params.ip_port = 9000
+board = BoardShim(CYTON_BOARD_ID, params)
 board.prepare_session()
 board.start_stream(45000)
 
