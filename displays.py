@@ -1,3 +1,5 @@
+#### THIS CODE COLLECT DATA DUING THE PROMPTING WINDOW - INCORRECT. The fix is attempted in displays_fix_data_interval.py
+
 from psychopy import visual, core, event
 import numpy as np
 import random
@@ -118,7 +120,7 @@ prompt_break = visual.TextStim(
     height=0.07
 )
 
-# Create a flash marker stimulus at the bottom left.
+# Create a flash marker stimulus at the bottom right.
 # This marker will be drawn (flashed) to indicate event timing.
 flash_marker = visual.Rect(
     win,
