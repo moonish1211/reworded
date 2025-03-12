@@ -2,16 +2,17 @@ from psychopy import visual, core, event
 import numpy as np
 import random
 import csv
+import os
 import json
 from brainflow import BrainFlowInputParams, BoardShim, BoardIds
 from datetime import datetime
 
 ##Preparing the data:
 '''
-collecting 500 words to be tested on and the ration of correct vs incorect will be a parameter
+collecting 450 words to be tested on and the ration of correct vs incorect will be a parameter
 '''
 correct_word_num = 250
-incorrect_advanced_num = 150
+incorrect_advanced_num = 100
 incorrect_trick_num = 100
 
 ##Randomly get subset of these words from the txt file. 
@@ -26,15 +27,15 @@ def select_random_words(file_path, num_words=250):
     
     return random_words
 
-correct_word_path = "/Users/marcosanchez/reworded/correct.txt" 
+correct_word_path = "correct.txt" 
 correct_words = select_random_words(correct_word_path, num_words = correct_word_num)
 correct_words = [(word, 1) for word in correct_words]
 
-incorrect_advanced_path = "/Users/marcosanchez/reworded/incorrect_advance.txt"  
+incorrect_advanced_path = "incorrect_advance.txt"  
 incorrect_advanced_words = select_random_words(incorrect_advanced_path, num_words = incorrect_advanced_num)
 incorrect_advanced_words = [(word, 0) for word in incorrect_advanced_words]
 
-incorrect_trick_path = "/Users/marcosanchez/reworded/incorrect_trick.txt"  
+incorrect_trick_path = "incorrect_trick.txt"  
 incorrect_trick_words = select_random_words(incorrect_trick_path, num_words = incorrect_trick_num)
 incorrect_trick_words = [(word, 0) for word in incorrect_trick_words]
 
@@ -43,6 +44,7 @@ combined_list = correct_words + incorrect_advanced_words + incorrect_trick_words
 
 # Shuffle the combined list
 random.shuffle(combined_list)
+length_data = len(combined_list)
 
 ##############################
 # Set up BrainFlow connection #
@@ -78,7 +80,7 @@ win = visual.Window(fullscr=True, color="black", units="norm")
 flicker_freq = 12          # Flicker frequency in Hz
 base_duration = 0.5        # Duration per character in seconds
 extra_duration = 0.2       # Extra duration for the last character
-frame_rate = 60            # Assumed monitor refresh rate
+# frame_rate = 60            # Assumed monitor refresh rate
 
 # Create a constant square frame stimulus
 square_frame = visual.Rect(
@@ -127,12 +129,15 @@ flash_marker = visual.Rect(
     lineColor="white"
 )
 
-csv_filename = "experiment_data.csv"
-csv_headers = ["word", "label", "user_response"]
-##########
-
-
 n_channels = 8
+# Format it as YYYY-MM-DD_HH-MM-SS
+timestamp = now.strftime("%m-%d_%H-%M")
+
+# CSV filename to store EEG data.
+csv_filename = f"data\experiment_data_{timestamp}.csv"
+csv_headers = ['iteration','word','label', 'user_input'] + [f"channel_{i}" for i in range(n_channels)]
+
+##########
 
 # Function to delete the last row from a CSV file
 def delete_last_row(filename):
@@ -155,14 +160,16 @@ with open(csv_filename, mode='w', newline='') as csv_file:
     label_list = []
     user_response_list = []
     word_shown = 0
-    for word, label in combined_list:
+
+    for index in range(length_data):
 
         # Initialize flags to ensure the flash is drawn only once at each desired time
         # flash_shown_first = False
         # flash_shown_last = False
-
-
+        word = combined_list[index][0]
+        label= combined_list[index][1]
         label_list.append(label)
+
         # Display each character in the word sequentially
         for i, letter in enumerate(word):
             # Determine the display duration: last letter gets extra time
@@ -179,6 +186,7 @@ with open(csv_filename, mode='w', newline='') as csv_file:
                 
                 square_frame.draw()
                 text_stim.draw()
+                
 
 
                 # --- Time Locking via Flash Marker ---
@@ -186,7 +194,7 @@ with open(csv_filename, mode='w', newline='') as csv_file:
                 # if i == 0 and not flash_shown_first and clock.getTime() < 0.02:
                 if clock.getTime() < 0.02:
                     flash_marker.draw()
-                    flash_shown_first = True
+
                 # At the very end of the last character display, flash the marker.
                 # if i == len(word) - 1 and not flash_shown_last and clock.getTime() > duration - 0.02:
                 #     flash_marker.draw()
@@ -200,6 +208,8 @@ with open(csv_filename, mode='w', newline='') as csv_file:
                 # Allow escape key to exit immediately
                 if 'escape' in event.getKeys():
                     win.close()
+                    board.stop_stream()
+                    board.release_session()
                     core.quit()
 
         # After displaying the word, show the prompt screen for 1.3 seconds
@@ -225,7 +235,7 @@ with open(csv_filename, mode='w', newline='') as csv_file:
                 user_response = keys[0]  # Record the first key press
                 key_pressed = True
             if 'escape' in keys:
-                delete_last_row(csv_filename)
+                # delete_last_row(csv_filename)
 
                 win.close()
                 board.stop_stream()
@@ -245,7 +255,7 @@ with open(csv_filename, mode='w', newline='') as csv_file:
             user_response_list.append(1)
         else:
             user_response_list.append(0)
-        print(label, user_response_list[-1])
+        print(word, label, user_response_list[-1])
         
 
 
@@ -274,6 +284,146 @@ with open(csv_filename, mode='w', newline='') as csv_file:
                     break
                 core.wait(0.1)  # Small delay to prevent high CPU usage
                 ### This may be a bad lag for implementation...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # for word, label in combined_list:
+
+    #     # Initialize flags to ensure the flash is drawn only once at each desired time
+    #     # flash_shown_first = False
+    #     # flash_shown_last = False
+
+
+    #     label_list.append(label)
+    #     # Display each character in the word sequentially
+    #     for i, letter in enumerate(word):
+    #         # Determine the display duration: last letter gets extra time
+    #         duration = base_duration + extra_duration if i == len(word) - 1 else base_duration
+    #         clock = core.Clock()
+    #         while clock.getTime() < duration:
+    #             t = clock.getTime()
+    #             # Flicker logic: show the letter when the sine wave is positive, otherwise blank
+    #             text_stim.text = letter
+    #             # if np.sin(2 * np.pi * flicker_freq * t) > 0:
+    #             #     text_stim.text = letter
+    #             # else:
+    #             #     text_stim.text = ""
+                
+    #             square_frame.draw()
+    #             text_stim.draw()
+
+
+    #             # --- Time Locking via Flash Marker ---
+    #             # At the very start of the first character, flash the marker.
+    #             # if i == 0 and not flash_shown_first and clock.getTime() < 0.02:
+    #             if clock.getTime() < 0.02:
+    #                 flash_marker.draw()
+    #                 flash_shown_first = True
+    #             # At the very end of the last character display, flash the marker.
+    #             # if i == len(word) - 1 and not flash_shown_last and clock.getTime() > duration - 0.02:
+    #             #     flash_marker.draw()
+    #             #     flash_shown_last = True
+    #             # # -------------------------------------
+
+
+
+    #             win.flip()
+                
+    #             # Allow escape key to exit immediately
+    #             if 'escape' in event.getKeys():
+    #                 win.close()
+    #                 core.quit()
+
+    #     # After displaying the word, show the prompt screen for 1.3 seconds
+    #     user_response = None
+    #     key_pressed = False
+    #     clock = core.Clock()
+
+      
+
+    #     while clock.getTime() < 1.3:
+    #         prompt_text.draw()
+    #         win.flip()
+            
+    #         # Collect EEG data during the prompt window
+    #         current_count = board.get_board_data_count()
+    #         all_data = board.get_board_data()  # Shape: (channels, total_samples)
+    #         iteration_data = all_data[:, previous_sample_count:current_count]
+    #         previous_sample_count = current_count
+  
+
+    #         keys = event.getKeys()  # Check for any key press
+    #         if keys and user_response is None:
+    #             user_response = keys[0]  # Record the first key press
+    #             key_pressed = True
+    #         if 'escape' in keys:
+    #             delete_last_row(csv_filename)
+
+    #             win.close()
+    #             board.stop_stream()
+    #             board.release_session()
+
+    #             core.quit()
+
+    #     while iteration_data.shape[1] == 0:  # If no data recorded yet
+    #         print(f"Waiting for EEG data for {word}...")
+    #         current_count = board.get_board_data_count()
+    #         all_data = board.get_board_data()  # Shape: (channels, total_samples)
+    #         iteration_data = all_data[:, previous_sample_count:current_count]
+    #         previous_sample_count = current_count
+    #         core.wait(0.05)  # Wait for a small time before checking again
+
+    #     if key_pressed:
+    #         user_response_list.append(1)
+    #     else:
+    #         user_response_list.append(0)
+    #     print(label, user_response_list[-1])
+        
+
+
+    #     row =  [word ,label, user_response_list[-1]]
+    #     for ch in range(n_channels):
+    #         # If the board returns more channels than we expect, limit to n_channels.
+    #         channel_data = iteration_data[ch, :].tolist() if ch < iteration_data.shape[0] else []
+    #         # Store as JSON string to preserve list structure.
+    #         row.append(json.dumps(channel_data))
+
+
+
+    #     writer.writerow(row)
+
+    #     word_shown += 1
+
+
+    #     if word_shown % 25 == 0:
+    #         ##For every 25 word, we would like to give break to the user that pauses the loop until key is pressed. 
+    #         while True:
+    #             prompt_break.draw()
+    #             win.flip()
+    #             keys = event.getKeys()  # Check for key presses
+    #             if 'space' in keys:  # If spacebar is pressed
+    #                 print("Spacebar pressed! Exiting loop...")
+    #                 break
+    #             core.wait(0.1)  # Small delay to prevent high CPU usage
+    #             ### This may be a bad lag for implementation...
 
 
 # Clean up: close the window and quit
