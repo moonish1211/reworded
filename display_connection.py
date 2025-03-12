@@ -31,16 +31,16 @@ def select_random_words(file_path, num_words=250):
     random_words = random.sample(words, num_words)
     return random_words
 
-correct_word_path = "correct.txt" 
-correct_words = select_random_words(correct_word_path, num_words=correct_word_num)
+correct_word_path = "/Users/marcosanchez/reworded/correct.txt" 
+correct_words = select_random_words(correct_word_path, num_words = correct_word_num)
 correct_words = [(word, 1) for word in correct_words]
 
-incorrect_advanced_path = "incorrect_advance.txt"  
-incorrect_advanced_words = select_random_words(incorrect_advanced_path, num_words=incorrect_advanced_num)
+incorrect_advanced_path = "/Users/marcosanchez/reworded/incorrect_advance.txt"  
+incorrect_advanced_words = select_random_words(incorrect_advanced_path, num_words = incorrect_advanced_num)
 incorrect_advanced_words = [(word, 0) for word in incorrect_advanced_words]
 
-incorrect_trick_path = "incorrect_trick.txt"  
-incorrect_trick_words = select_random_words(incorrect_trick_path, num_words=incorrect_trick_num)
+incorrect_trick_path = "/Users/marcosanchez/reworded/incorrect_trick.txt"  
+incorrect_trick_words = select_random_words(incorrect_trick_path, num_words = incorrect_trick_num)
 incorrect_trick_words = [(word, 0) for word in incorrect_trick_words]
 
 # Combine and shuffle all lists

@@ -65,9 +65,9 @@ previous_sample_count = board.get_board_data_count()
 
 # Set up the window
 ## Code for doing it in pop up to look at terminal output
-win = visual.Window(size=[800, 600], color="black", units="norm")
+#win = visual.Window(size=[800, 600], color="black", units="norm")
 ## Code for fullscreen
-# win = visual.Window(fullscr=True, color="black", units="norm")
+win = visual.Window(fullscr=True, color="black", units="norm")
 
 # Define the word and flicker/display parameters
 # word = "table"
@@ -118,7 +118,7 @@ flash_marker = visual.Rect(
     win,
     width=0.1,   # Adjust size as needed
     height=0.1,
-    pos=(-0.95, -0.95),  # Bottom left in normalized coordinates
+    pos=(0.95, -0.95),  # Bottom left in normalized coordinates
     fillColor="white",
     lineColor="white"
 )
