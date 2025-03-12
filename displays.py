@@ -4,6 +4,7 @@ import random
 import csv
 import json
 from brainflow import BrainFlowInputParams, BoardShim, BoardIds
+from datetime import datetime
 
 ##Preparing the data:
 '''
@@ -59,6 +60,9 @@ board.start_stream(45000)
 
 # Initialize previous sample count to segment data for each iteration.
 previous_sample_count = board.get_board_data_count()
+
+now = datetime.now()
+timestamp = now.strftime("%m-%d_%H-%M")
 
 
 
