@@ -202,6 +202,15 @@ for index in range(length_data):
             board.release_session()
             csv_file.close()
             core.quit()
+    
+    while iteration_data.shape[1] == 0:  # If no data recorded yet
+            print(f"Waiting for EEG data for {word}...")
+            current_count = board.get_board_data_count()
+            all_data = board.get_board_data()  # Shape: (channels, total_samples)
+            iteration_data = all_data[:, previous_sample_count:current_count]
+            previous_sample_count = current_count
+            core.wait(0.05)  # Wait for a small time before checking again
+            
     if key_pressed:
         user_response_list.append(1)
     else:
